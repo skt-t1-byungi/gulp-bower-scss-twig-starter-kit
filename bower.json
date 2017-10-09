@@ -1,0 +1,17 @@
+{
+  "name": "gulp-bower-scss-twig-starter-kit",
+  "description": "starter kit for gulp, bower, scss, tiwg",
+  "version": "0.0.0",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "^3.2.1",
+    "lodash": "^4.17.4",
+    "reset-css": "^2.2.1"
+  }
+}
