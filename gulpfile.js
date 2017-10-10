@@ -19,10 +19,13 @@ const onError = function(err) {
   this.emit('end');
 };
 
+let if_newer = true;
+
 gulp.task('twig', ()=>{
   return gulp
-    .src('./src/twig/!(_*).twig')
+    .src('./src/twig/**/!(_*).twig')
     .pipe($.plumber({errorHandler: onError}))
+    .pipe($.if(if_newer, $.newer({dest: paths.DEV_HTML, ext: '.html'})))
     .pipe($.twig())
     .pipe(gulp.dest(paths.DEV_HTML))
     .pipe($.browserSync.stream());
@@ -30,8 +33,9 @@ gulp.task('twig', ()=>{
 
 gulp.task('scss', ()=>{
   return gulp
-    .src('./src/scss/!(_*).scss')
+    .src('./src/scss/**/!(_*).scss')
     .pipe($.plumber({errorHandler: onError}))
+    .pipe($.if(if_newer, $.newer({dest: paths.DEV_CSS, ext: '.css'})))
     .pipe($.sourcemaps.init())
     .pipe($.sass())
     .pipe($.sourcemaps.write('./'))
@@ -41,9 +45,10 @@ gulp.task('scss', ()=>{
 
 gulp.task('js', ()=>{
   return gulp
-    .src('./src/javascript/!(_*).js')
+    .src('./src/script/**/!(_*).js')
     .pipe($.plumber({errorHandler: onError}))
-    .pipe($.newer({dest: paths.DEV_SCRIPT, ext: '.js'}))
+    .pipe($.if(if_newer, $.newer({dest: paths.DEV_SCRIPT, ext: '.js'})))
+    .pipe($.preprocess())
     .pipe(gulp.dest(paths.DEV_SCRIPT))
     .pipe($.browserSync.stream());
 });
@@ -68,13 +73,24 @@ gulp.task('bower', ['bower:js', 'bower:css']);
 
 gulp.task('serve', ['bower', 'twig', 'scss', 'js'], ()=>{
   $.browserSync.init({
-    server: "./dist",
+    server: paths.DEV,
     port: 8081
   });
 
-  gulp.watch("src/**/*.twig", ['twig']);
-  gulp.watch("src/**/*.scss", ['scss']);
-  gulp.watch("src/**/*.js", ['js']);
+  gulp.watch("src/**/!(_*).twig", ['twig']);
+  gulp.watch("src/**/!(_*).scss", ['scss']);
+  gulp.watch("src/**/!(_*).js", ['js']);
+
+  const doTaskWithoutNewer = taskName => ()=>{
+    if_newer = false;
+    return $.runSequence(taskName, ()=>{
+      if_newer = true;
+    });
+  };
+
+  gulp.watch("src/**/_*.twig", doTaskWithoutNewer('twig'));
+  gulp.watch("src/**/_*.scss", doTaskWithoutNewer('scss'));
+  gulp.watch("src/**/_*.js", doTaskWithoutNewer('js'));
 });
 
 gulp.task('dev:del', ()=>{
@@ -89,6 +105,7 @@ gulp.task('build:js', ['bower', 'js'], ()=>{
   return gulp
     .src(path.join(paths.DEV_SCRIPT, '**/*.js'))
     .pipe($.uglify())
+    .pipe($.size({showFiles: true}))
     .pipe(gulp.dest(paths.DIST_SCRIPT))
 });
 
@@ -97,6 +114,7 @@ gulp.task('build:css', ['scss'], ()=>{
     .src(path.join(paths.DEV_CSS, '**/*.css'))
     .pipe($.autoprefixer())
     .pipe($.cleanCss())
+    .pipe($.size({showFiles: true}))
     .pipe(gulp.dest(paths.DIST_CSS))
 });
 
@@ -104,6 +122,7 @@ gulp.task('build:html', ['twig'], ()=>{
   return gulp
     .src(path.join(paths.DEV_HTML, '**/*.html'))
     .pipe($.jsbeautifier())
+    .pipe($.size({showFiles: true}))
     .pipe(gulp.dest(paths.DIST_HTML))
 });
 
@@ -112,7 +131,7 @@ gulp.task('build:del', ()=>{
 });
 
 gulp.task('build', ()=>{
-  return $.runSequence('build:del', ['build:html', 'build:scss', 'build:js']);
+  return $.runSequence('build:del', ['build:html', 'build:css', 'build:js']);
 });
 
 gulp.task('bump', ()=>{
