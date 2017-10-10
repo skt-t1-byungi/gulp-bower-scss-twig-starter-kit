@@ -38,7 +38,6 @@ README.md
   - 언더바(`_`)로 시작되는 파일은 컴파일제외.
   - 코드 내 파일 경로는 `package.json`의 `paths` 경로에 맞춰 컴파일됨.
 - 최종빌드 `npm run gulp build`
----
 
 ## gulp 태스크 목록
 #### gulp watch
