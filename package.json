@@ -25,7 +25,10 @@
     "gulp-twig": "^1.1.1",
     "gulp-uglify": "^3.0.0",
     "gulp-w3cjs": "^1.3.0",
-    "run-sequence": "^2.2.0"
+    "gulp.spritesmith": "^6.5.1",
+    "merge-stream": "^1.0.1",
+    "run-sequence": "^2.2.0",
+    "vinyl-buffer": "^1.0.0"
   },
   "paths": {
     "DEV": "./dev",
@@ -35,7 +38,11 @@
     "DIR_SCRIPT": "assets/script",
     "DIR_IMAGE": "assets/image",
     "sprites": [
-      "src/sprites/*.png"
+      {
+        "src": "./src/sprites/icons/*.png",
+        "imgName": "icons.png",
+        "cssName": "icons.scss"
+      }
     ]
   },
   "scripts": {

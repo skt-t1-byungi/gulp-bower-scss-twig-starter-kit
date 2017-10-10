@@ -6,6 +6,7 @@ const pkg = require('./package.json');
 const paths = {
   DEV: pkg.paths.DEV,
   DIST: pkg.paths.DIST,
+  sprites: pkg.paths.sprites,
   DEV_HTML: path.join(pkg.paths.DEV, pkg.paths.DIR_HTML),
   DEV_CSS: path.join(pkg.paths.DEV, pkg.paths.DIR_CSS),
   DEV_SCRIPT: path.join(pkg.paths.DEV, pkg.paths.DIR_SCRIPT),
@@ -60,6 +61,29 @@ gulp.task('image', ()=>{
     .src('./src/image/**/*.{png,jpg,gif,jpeg,svg}')
     .pipe($.imagemin())
     .pipe(gulp.dest(paths.DEV_IMAGE));
+});
+
+gulp.task('sprites', ()=>{
+  let tasks = paths.sprites.map(sprite=> ()=>{
+    const stream = gulp
+      .src(sprite.src)
+      .pipe($.spritesmith({
+        imgName: sprite.imgName,
+        cssName: sprite.cssName,
+      }));
+
+    const imgStream = stream.img
+      .pipe($.vinylBuffer())
+      .pipe($.imagemin())
+      .pipe(gulp.dest(paths.DEV_IMAGE));
+
+    const cssStream = stream.css
+      .pipe(gulp.dest('./src/sprites'));
+
+    return $.mergeStream(imgStream, cssStream);
+  });
+
+  return $.runSequence(tasks);
 });
 
 gulp.task('bower:js', ()=>{
