@@ -9,9 +9,11 @@ const paths = {
   DEV_HTML: path.join(pkg.paths.DEV, pkg.paths.DIR_HTML),
   DEV_CSS: path.join(pkg.paths.DEV, pkg.paths.DIR_CSS),
   DEV_SCRIPT: path.join(pkg.paths.DEV, pkg.paths.DIR_SCRIPT),
+  DEV_IMAGE: path.join(pkg.paths.DEV, pkg.paths.DIR_IMAGE),
   DIST_HTML: path.join(pkg.paths.DIST, pkg.paths.DIR_HTML),
   DIST_CSS: path.join(pkg.paths.DIST, pkg.paths.DIR_CSS),
-  DIST_SCRIPT: path.join(pkg.paths.DIST, pkg.paths.DIR_SCRIPT)
+  DIST_SCRIPT: path.join(pkg.paths.DIST, pkg.paths.DIR_SCRIPT),
+  DIST_IMAGE: path.join(pkg.paths.DIST, pkg.paths.DIR_IMAGE)
 };
 
 const onError = function(err) {
@@ -53,6 +55,13 @@ gulp.task('js', ()=>{
     .pipe($.browserSync.stream());
 });
 
+gulp.task('image', ()=>{
+  return gulp
+    .src('./src/image/**/*.{png,jpg,gif,jpeg,svg}')
+    .pipe($.imagemin())
+    .pipe(gulp.dest(paths.DEV_IMAGE));
+});
+
 gulp.task('bower:js', ()=>{
   return gulp
     .src('./bower.json')
@@ -71,12 +80,7 @@ gulp.task('bower:css', ()=>{
 
 gulp.task('bower', ['bower:js', 'bower:css']);
 
-gulp.task('serve', ['bower', 'twig', 'scss', 'js'], ()=>{
-  $.browserSync.init({
-    server: paths.DEV,
-    port: 8081
-  });
-
+gulp.task('watch', ['bower', 'twig', 'scss', 'js'], ()=>{
   gulp.watch("src/**/!(_*).twig", ['twig']);
   gulp.watch("src/**/!(_*).scss", ['scss']);
   gulp.watch("src/**/!(_*).js", ['js']);
@@ -92,6 +96,16 @@ gulp.task('serve', ['bower', 'twig', 'scss', 'js'], ()=>{
   gulp.watch("src/**/_*.scss", doTaskWithoutNewer('scss'));
   gulp.watch("src/**/_*.js", doTaskWithoutNewer('js'));
 });
+
+gulp.task('serve', ()=>{
+  $.browserSync.init({server: paths.DEV, port: 8081});
+  return $.runSequence('watch');
+})
+
+gulp.task('serve:re', ()=>{
+  $.browserSync.init({server: paths.DEV, port: 8081, open: false});
+  return $.runSequence('watch');
+})
 
 gulp.task('dev:del', ()=>{
   return $.del(path.join(paths.DEV, '**/*'));
@@ -126,12 +140,19 @@ gulp.task('build:html', ['twig'], ()=>{
     .pipe(gulp.dest(paths.DIST_HTML))
 });
 
+gulp.task('build:image', ['image'], ()=>{
+  return gulp
+    .src(path.join(paths.DEV_IMAGE, '**/*.{png,jpg,gif,jpeg,svg}'))
+    .pipe($.size({showFiles: true}))
+    .pipe(gulp.dest(paths.DIST_IMAGE))
+});
+
 gulp.task('build:del', ()=>{
   return $.del(path.join(paths.DIST, '**/*'));
 });
 
 gulp.task('build', ()=>{
-  return $.runSequence('build:del', ['build:html', 'build:css', 'build:js']);
+  return $.runSequence('build:del', ['build:html', 'build:css', 'build:js', 'build:image']);
 });
 
 gulp.task('bump', ()=>{
