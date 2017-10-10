@@ -37,7 +37,7 @@ README.md
 - browsersync 실행 `npm run gulp serve`
 - `src/[filetype]` 각 폴더에서 작업진행.
   - 언더바(`_`)로 시작되는 파일은 컴파일제외.
-  - 코드 내 파일 경로는 `package.json`의 `paths` 경로에 맞춰 컴파일됨.
+  - `package.json`의 `paths` 경로에 맞춰 컴파일되니 코드내부 경로도 `paths`에 맞춰 작업.
 - 최종빌드 `npm run gulp build`
 
 ## gulp 태스크 목록
