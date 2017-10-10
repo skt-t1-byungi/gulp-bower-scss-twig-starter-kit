@@ -1,6 +1,18 @@
 const gulp = require('gulp');
-const browserSync = require('browser-sync');
 const $ = require('gulp-load-plugins')({pattern: ["*"]});
+const path = require('path');
+const pkg = require('./package.json');
+
+const paths = {
+  DEV: pkg.paths.DEV,
+  DIST: pkg.paths.DIST,
+  DEV_HTML: path.join(pkg.paths.DEV, pkg.paths.DIR_HTML),
+  DEV_CSS: path.join(pkg.paths.DEV, pkg.paths.DIR_CSS),
+  DEV_SCRIPT: path.join(pkg.paths.DEV, pkg.paths.DIR_SCRIPT),
+  DIST_HTML: path.join(pkg.paths.DIST, pkg.paths.DIR_HTML),
+  DIST_CSS: path.join(pkg.paths.DIST, pkg.paths.DIR_CSS),
+  DIST_SCRIPT: path.join(pkg.paths.DIST, pkg.paths.DIR_SCRIPT)
+};
 
 const onError = function(err) {
   console.log('An Error Has Occurred \n', err.toString());
@@ -12,8 +24,8 @@ gulp.task('twig', ()=>{
     .src('./src/twig/!(_*).twig')
     .pipe($.plumber({errorHandler: onError}))
     .pipe($.twig())
-    .pipe(gulp.dest('./dist'))
-    .pipe(browserSync.stream());
+    .pipe(gulp.dest(paths.DEV_HTML))
+    .pipe($.browserSync.stream());
 });
 
 gulp.task('scss', ()=>{
@@ -23,17 +35,17 @@ gulp.task('scss', ()=>{
     .pipe($.sourcemaps.init())
     .pipe($.sass())
     .pipe($.sourcemaps.write('./'))
-    .pipe(gulp.dest('./dist/assets'))
-    .pipe(browserSync.stream());
+    .pipe(gulp.dest(paths.DEV_CSS))
+    .pipe($.browserSync.stream());
 });
 
 gulp.task('js', ()=>{
   return gulp
     .src('./src/javascript/!(_*).js')
     .pipe($.plumber({errorHandler: onError}))
-    .pipe($.newer({dest: './dist/assets', ext: '.js'}))
-    .pipe(gulp.dest('./dist/assets'))
-    .pipe(browserSync.stream());
+    .pipe($.newer({dest: paths.DEV_SCRIPT, ext: '.js'}))
+    .pipe(gulp.dest(paths.DEV_SCRIPT))
+    .pipe($.browserSync.stream());
 });
 
 gulp.task('bower:js', ()=>{
@@ -41,7 +53,7 @@ gulp.task('bower:js', ()=>{
     .src('./bower.json')
     .pipe($.mainBowerFiles('**/*.js'))
     .pipe($.concat('vendor.js'))
-    .pipe(gulp.dest('./dist/assets'));
+    .pipe(gulp.dest(paths.DEV_SCRIPT));
 });
 
 gulp.task('bower:css', ()=>{
@@ -49,13 +61,13 @@ gulp.task('bower:css', ()=>{
     .src('./bower.json')
     .pipe($.mainBowerFiles('**/*.css'))
     .pipe($.concat('vendor.css'))
-    .pipe(gulp.dest('./dist/assets'));
+    .pipe(gulp.dest(paths.DEV_CSS));
 });
 
-gulp.task('bower', ['bower:js', 'bower:css'])
+gulp.task('bower', ['bower:js', 'bower:css']);
 
-gulp.task('dev', ['bower', 'twig', 'scss', 'js'], ()=>{
-  browserSync.init({
+gulp.task('serve', ['bower', 'twig', 'scss', 'js'], ()=>{
+  $.browserSync.init({
     server: "./dist",
     port: 8081
   });
@@ -65,48 +77,49 @@ gulp.task('dev', ['bower', 'twig', 'scss', 'js'], ()=>{
   gulp.watch("src/**/*.js", ['js']);
 });
 
-gulp.task('del', ()=>{
-  return $.del('./dist/**/*');
+gulp.task('dev:del', ()=>{
+  return $.del(path.join(paths.DEV, '**/*'));
 });
 
-gulp.task('del-maps', ()=>{
-  return $.del('./dist/**/*.map');
+gulp.task('dev', ()=>{
+  return $.runSequence('dev:del', ['bower', 'twig', 'scss', 'js']);
 });
 
 gulp.task('build:js', ['bower', 'js'], ()=>{
   return gulp
-    .src('./dist/assets/**/*.js', {base: './'})
+    .src(path.join(paths.DEV_SCRIPT, '**/*.js'))
     .pipe($.uglify())
-    .pipe(gulp.dest('./'))
+    .pipe(gulp.dest(paths.DIST_SCRIPT))
 });
 
 gulp.task('build:css', ['scss'], ()=>{
   return gulp
-    .src('./dist/assets/**/*.css', {base: './'})
+    .src(path.join(paths.DEV_CSS, '**/*.css'))
     .pipe($.autoprefixer())
     .pipe($.cleanCss())
-    .pipe(gulp.dest('./'))
+    .pipe(gulp.dest(paths.DIST_CSS))
 });
 
 gulp.task('build:html', ['twig'], ()=>{
   return gulp
-    .src('./dist/**/*.html', {base: './'})
+    .src(path.join(paths.DEV_HTML, '**/*.html'))
     .pipe($.jsbeautifier())
-    .pipe(gulp.dest('./'))
+    .pipe(gulp.dest(paths.DIST_HTML))
 });
 
-gulp.task('build', ['del'], ()=>{
-  return $.runSequence(
-    ['build:js', 'build:css', 'build:html'],
-    'del-maps'
-  );
+gulp.task('build:del', ()=>{
+  return $.del(path.join(paths.DIST, '**/*'));
+});
+
+gulp.task('build', ()=>{
+  return $.runSequence('build:del', ['build:html', 'build:scss', 'build:js']);
 });
 
 gulp.task('bump', ()=>{
   return gulp
-  .src(['./bower.json', './package.json'])
-  .pipe($.bump())
-  .pipe(gulp.dest('./'));
+    .src(['./bower.json', './package.json'])
+    .pipe($.bump())
+    .pipe(gulp.dest('./'));
 });
 
 gulp.task('w3c', function () {
