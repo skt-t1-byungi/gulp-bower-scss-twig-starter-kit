@@ -5,6 +5,7 @@
 git clone https://github.com/skt-t1-byungi/gulp-bower-scss-twig-starter-kit.git
 cd gulp-bower-scss-twig-starter-kit
 npm install
+npm run bower install
 
 //로컬 gulp 명령
 npm run gulp [command]
@@ -47,7 +48,7 @@ README.md
 browserSync와 `gulp watch`를 실행합니다. `gulp serve:re` 명령어를 통해 브라우저를 새로 열지 않고 실행할 수 있습니다.
 
 #### gulp bower
-bower파일들을 vendor파일(vendor.css, vendor.js) 합쳐 중간빌드폴더(dev)로 복사합니다.
+bower파일들을 vendor파일(vendor.css, vendor.js)로 합쳐 중간빌드폴더(dev)로 복사합니다.
 
 #### gulp dev
 `src` 파일을 중간빌드합니다. `gulp [filetype]`을 통해 타입별로 중간빌드 할 수도 있습니다. (예: `gulp twig`, `gulp scss`)
