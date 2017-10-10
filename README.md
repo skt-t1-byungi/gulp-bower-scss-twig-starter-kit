@@ -62,8 +62,8 @@ bower파일들을 vendor파일(vendor.css, vendor.js)로 합쳐 중간빌드폴�
 #### gulp clean
 sprites로 생성된 css파일, 중간빌드, 최종빌드 파일을 제거합니다.
 
-### gulp bump
+#### gulp bump
 package.json, bower.json 버전을 업데이트(patch)합니다.
 
-### gulp w3c
+#### gulp w3c
 최종빌드된 html 파일 마크업을 검사합니다.
