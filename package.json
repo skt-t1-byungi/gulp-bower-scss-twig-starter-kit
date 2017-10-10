@@ -41,7 +41,7 @@
       {
         "src": "./src/sprites/icons/*.png",
         "imgName": "icons.png",
-        "cssName": "icons.scss"
+        "cssName": "icons.css"
       }
     ]
   },

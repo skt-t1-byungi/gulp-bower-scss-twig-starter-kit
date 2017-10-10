@@ -3,3 +3,5 @@ node_modules/
 package-lock.json
 dist/
 dev/
+src/sprites/*.css
+src/sprites/*.scss

@@ -22,13 +22,13 @@ const onError = function(err) {
   this.emit('end');
 };
 
-let if_newer = true;
+let shouldNewer = true;
 
 gulp.task('twig', ()=>{
   return gulp
     .src('./src/twig/**/!(_*).twig')
     .pipe($.plumber({errorHandler: onError}))
-    .pipe($.if(if_newer, $.newer({dest: paths.DEV_HTML, ext: '.html'})))
+    .pipe($.if(shouldNewer, $.newer({dest: paths.DEV_HTML, ext: '.html'})))
     .pipe($.twig())
     .pipe(gulp.dest(paths.DEV_HTML))
     .pipe($.browserSync.stream());
@@ -38,7 +38,7 @@ gulp.task('scss', ()=>{
   return gulp
     .src('./src/scss/**/!(_*).scss')
     .pipe($.plumber({errorHandler: onError}))
-    .pipe($.if(if_newer, $.newer({dest: paths.DEV_CSS, ext: '.css'})))
+    .pipe($.if(shouldNewer, $.newer({dest: paths.DEV_CSS, ext: '.css'})))
     .pipe($.sourcemaps.init())
     .pipe($.sass())
     .pipe($.sourcemaps.write('./'))
@@ -50,7 +50,7 @@ gulp.task('js', ()=>{
   return gulp
     .src('./src/script/**/!(_*).js')
     .pipe($.plumber({errorHandler: onError}))
-    .pipe($.if(if_newer, $.newer({dest: paths.DEV_SCRIPT, ext: '.js'})))
+    .pipe($.if(shouldNewer, $.newer({dest: paths.DEV_SCRIPT, ext: '.js'})))
     .pipe($.preprocess())
     .pipe(gulp.dest(paths.DEV_SCRIPT))
     .pipe($.browserSync.stream());
@@ -63,8 +63,14 @@ gulp.task('image', ()=>{
     .pipe(gulp.dest(paths.DEV_IMAGE));
 });
 
-gulp.task('sprites', ()=>{
-  let tasks = paths.sprites.map(sprite=> ()=>{
+gulp.task('sprites:del-prev-files', ()=>{
+  return $.del('./src/sprites/**/*.{css,scss}');
+})
+
+gulp.task('sprites', ['sprites:del-prev-files'], ()=>{
+  const taskStreams = [];
+
+  paths.sprites.forEach(sprite=>{
     const stream = gulp
       .src(sprite.src)
       .pipe($.spritesmith({
@@ -80,10 +86,10 @@ gulp.task('sprites', ()=>{
     const cssStream = stream.css
       .pipe(gulp.dest('./src/sprites'));
 
-    return $.mergeStream(imgStream, cssStream);
+      taskStreams.push(imgStream, cssStream);
   });
 
-  return $.runSequence(tasks);
+  return $.mergeStream(...taskStreams);
 });
 
 gulp.task('bower:js', ()=>{
@@ -104,21 +110,21 @@ gulp.task('bower:css', ()=>{
 
 gulp.task('bower', ['bower:js', 'bower:css']);
 
-gulp.task('watch', ['bower', 'twig', 'scss', 'js'], ()=>{
+gulp.task('watch', ['sprites', 'bower', 'twig', 'scss', 'js'], ()=>{
   gulp.watch("src/**/!(_*).twig", ['twig']);
   gulp.watch("src/**/!(_*).scss", ['scss']);
   gulp.watch("src/**/!(_*).js", ['js']);
 
-  const doTaskWithoutNewer = taskName => ()=>{
-    if_newer = false;
+  const doWithoutNewer = taskName => ()=>{
+    shouldNewer = false;
     return $.runSequence(taskName, ()=>{
-      if_newer = true;
+      shouldNewer = true;
     });
   };
 
-  gulp.watch("src/**/_*.twig", doTaskWithoutNewer('twig'));
-  gulp.watch("src/**/_*.scss", doTaskWithoutNewer('scss'));
-  gulp.watch("src/**/_*.js", doTaskWithoutNewer('js'));
+  gulp.watch("src/**/_*.twig", doWithoutNewer('twig'));
+  gulp.watch("src/**/_*.scss", doWithoutNewer('scss'));
+  gulp.watch("src/**/_*.js", doWithoutNewer('js'));
 });
 
 gulp.task('serve', ()=>{
@@ -129,7 +135,7 @@ gulp.task('serve', ()=>{
 gulp.task('serve:re', ()=>{
   $.browserSync.init({server: paths.DEV, port: 8081, open: false});
   return $.runSequence('watch');
-})
+});
 
 gulp.task('dev:del', ()=>{
   return $.del(path.join(paths.DEV, '**/*'));
