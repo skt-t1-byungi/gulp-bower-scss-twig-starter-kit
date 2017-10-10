@@ -41,25 +41,25 @@ README.md
 ---
 
 ## gulp 태스크 목록
-#### gulp `watch`
+#### gulp watch
 `src` 파일들을 감시하고 파일이 변경되면 `gulp dev`를 실행됩니다.
 
-#### gulp `serve`
+#### gulp serve
 browserSync와 `gulp watch`를 실행합니다. `gulp serve:re` 명령어를 통해 브라우저를 새로 열지 않고 실행할 수 있습니다.
 
-#### gulp `bower`
+#### gulp bower
 bower파일들을 vendor파일(vendor.css, vendor.js) 합쳐 중간빌드폴더(dev)로 복사합니다.
 
-#### gulp `dev`
+#### gulp dev
 `src` 파일을 중간빌드합니다. `gulp [filetype]`을 통해 타입별로 중간빌드 할 수도 있습니다. (예: `gulp twig`, `gulp scss`)
 
-#### gulp `build`
+#### gulp build
 `src` 파일을 최종빌드합니다. 최종빌드 과정중에는 중간빌드(`gulp dev`)가 포함되어 있습니다.
 
-#### gulp `sprites`
+#### gulp sprites
 이미지 파일을 합쳐 sprite 이미지와 css파일을 생성합니다. `package.json`의 `paths.sprites`에 생성할 sprite 이미지정보를 정의합니다. 이미지는 중간빌드폴더(dev)의 `paths.DIR_IMAGE` 경로에 저장됩니다. css파일은 `src/sprites/` 아래에 저장됩니다.
 
-#### gulp `clean`
+#### gulp clean
 sprites로 생성된 css파일, 중간빌드, 최종빌드 파일을 제거합니다.
 
 ### gulp bump
