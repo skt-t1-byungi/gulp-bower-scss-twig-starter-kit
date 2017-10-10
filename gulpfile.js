@@ -185,6 +185,8 @@ gulp.task('build', ()=>{
   return $.runSequence('build:del', ['build:html', 'build:css', 'build:js', 'build:image']);
 });
 
+gulp.task('clean', ['sprites:del-prev-files', 'dev:del', 'build:del']);
+
 gulp.task('bump', ()=>{
   return gulp
     .src(['./bower.json', './package.json'])
@@ -194,6 +196,6 @@ gulp.task('bump', ()=>{
 
 gulp.task('w3c', function () {
   gulp.src('./dist/*.html')
-		.pipe($.w3cjs())
-		.pipe($.w3cjs.reporter());
+    .pipe($.w3cjs())
+    .pipe($.w3cjs.reporter());
 });
