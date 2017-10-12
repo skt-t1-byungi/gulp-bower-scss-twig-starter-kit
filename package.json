@@ -2,6 +2,9 @@
   "name": "gulp-bower-scss-twig-starter-kit",
   "description": "starter kit for gulp, bower, scss, tiwg",
   "version": "0.0.0",
+  "engines": {
+    "node": ">= 8"
+  },
   "devDependencies": {
     "bower": "^1.8.2",
     "browser-sync": "^2.18.13",
@@ -47,6 +50,7 @@
   },
   "scripts": {
     "gulp": "gulp",
-    "bower": "bower"
+    "bower": "bower",
+    "postinstall": "bower install"
   }
 }

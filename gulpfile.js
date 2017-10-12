@@ -65,7 +65,7 @@ gulp.task('image', ()=>{
 
 gulp.task('sprites:del-prev-files', ()=>{
   return $.del('./src/sprites/**/*.{css,scss}');
-})
+});
 
 gulp.task('sprites', ['sprites:del-prev-files'], ()=>{
   const taskStreams = [];
@@ -130,9 +130,9 @@ gulp.task('watch', ['sprites', 'bower', 'twig', 'scss', 'js'], ()=>{
 gulp.task('serve', ()=>{
   $.browserSync.init({server: paths.DEV, port: 8081});
   return $.runSequence('watch');
-})
+});
 
-gulp.task('serve:re', ()=>{
+gulp.task('serve-r', ()=>{
   $.browserSync.init({server: paths.DEV, port: 8081, open: false});
   return $.runSequence('watch');
 });
@@ -167,14 +167,14 @@ gulp.task('build:html', ['twig'], ()=>{
     .src(path.join(paths.DEV_HTML, '**/*.html'))
     .pipe($.jsbeautifier())
     .pipe($.size({showFiles: true}))
-    .pipe(gulp.dest(paths.DIST_HTML))
+    .pipe(gulp.dest(paths.DIST_HTML));
 });
 
 gulp.task('build:image', ['image'], ()=>{
   return gulp
     .src(path.join(paths.DEV_IMAGE, '**/*.{png,jpg,gif,jpeg,svg}'))
     .pipe($.size({showFiles: true}))
-    .pipe(gulp.dest(paths.DIST_IMAGE))
+    .pipe(gulp.dest(paths.DIST_IMAGE));
 });
 
 gulp.task('build:del', ()=>{
