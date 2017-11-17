@@ -182,7 +182,8 @@ gulp.task('build:del', ()=>{
 });
 
 gulp.task('build', ()=>{
-  return $.runSequence('build:del', ['build:html', 'build:css', 'build:js', 'build:image']);
+  shouldNewer = false;
+  return $.runSequence('build:del', ['build:html', 'build:css', 'build:js', 'build:image'], ()=>shouldNewer = true);
 });
 
 gulp.task('clean', ['sprites:del-prev-files', 'dev:del', 'build:del']);
